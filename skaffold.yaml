@@ -1,0 +1,36 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./packages/k8s/*
+build:
+  googleCloudBuild:
+    projectId: peppy-nation-312815
+  artifacts:
+    - image: gcr.io/peppy-nation-312815/auth
+      context: packages/auth
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: gcr.io/peppy-nation-312815/tickets
+      context: packages/tickets
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: gcr.io/peppy-nation-312815/client
+      context: packages/client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.ts'
+            dest: .
+          - src: '**/*.tsx'
+            dest: .

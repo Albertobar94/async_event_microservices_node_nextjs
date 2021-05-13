@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tickets-srv
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  ports:
+    - protocol: TCP
+      port: 60200
+      targetPort: 8080
+      name: tickets-port
+  type: NodePort
+  selector:
+    app: tickets
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tickets-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tickets
+  template:
+    metadata:
+      labels:
+        app: tickets
+    spec:
+      containers:
+        - name: tickets
+          image: gcr.io/peppy-nation-312815/tickets
+          env:
+            - name: MONGO_URI
+              value: 'mongodb://tickets-mongo-srv:27017/tickets'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
